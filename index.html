@@ -787,18 +787,18 @@ const DAY_METRICS = {
     {key:'squat',label:'Back Squat',unit:'kg',type:'weight'},
     {key:'hipthrust',label:'Hip Thrust',unit:'kg',type:'weight'},
     {key:'rdl',label:'RDL',unit:'kg',type:'weight'},
-    {key:'calfraises',label:'Calf Raises',unit:'reps',type:'reps'}
+    {key:'calfraises',label:'Calf Raises',unit:'kg',type:'weight',b:'calfraises_reps',blabel:'Reps'}
   ],
   tue:[
-    {key:'pullups',label:'Pull-ups',unit:'reps',type:'reps'},
+    {key:'pullups',label:'Pull-ups',unit:'kg',type:'weight',b:'pullups_reps',blabel:'Reps'},
     {key:'pushpress',label:'Push Press DB',unit:'kg',type:'weight'},
     {key:'latpulldown',label:'Lat Pulldown',unit:'kg',type:'weight'},
     {key:'backextension',label:'Back Extension',unit:'kg',type:'weight'}
   ],
   wed:[
     {key:'legpress',label:'Leg Press',unit:'kg',type:'weight'},
-    {key:'sandbag',label:'Sandbag Lunges',unit:'kg',type:'weight'},
-    {key:'sled',label:'Sled Push',unit:'kg',type:'weight'},
+    {key:'sandbag',label:'Sandbag Lunges',unit:'kg',type:'weight',b:'sandbag_m',blabel:'Distance (m)'},
+    {key:'sled',label:'Sled Push',unit:'kg',type:'weight',b:'sled_m',blabel:'Distance (m)'},
     {key:'kbswings',label:'KB Swings',unit:'kg',type:'weight'}
   ],
   thu:[
@@ -814,11 +814,11 @@ const DAY_METRICS = {
   ],
   sun:[
     {key:'skierg',label:'Ski Erg',unit:'m',type:'distance'},
-    {key:'sledpush',label:'Sled Push',unit:'m',type:'distance'},
-    {key:'sledpull',label:'Sled Pull',unit:'m',type:'distance'},
+    {key:'sledpush',label:'Sled Push',unit:'kg',type:'weight',b:'sledpush_m',blabel:'Distance (m)'},
+    {key:'sledpull',label:'Sled Pull',unit:'kg',type:'weight',b:'sledpull_m',blabel:'Distance (m)'},
     {key:'row',label:'Row',unit:'m',type:'distance'},
-    {key:'wallballs',label:'Wall Balls',unit:'reps',type:'reps'},
-    {key:'farmcarry',label:'Farmer Carry',unit:'kg',type:'weight'}
+    {key:'wallballs',label:'Wall Balls',unit:'kg',type:'weight',b:'wallballs_reps',blabel:'Reps'},
+    {key:'farmcarry',label:'Farmer Carry',unit:'kg',type:'weight',b:'farmcarry_m',blabel:'Distance (m)'}
   ]
 };
 
@@ -949,14 +949,29 @@ function openModal(day){
   let html='';
   if(metrics.length){
     html+='<div class="m-section-head">Key Numbers</div>';
-    html+='<div class="m-grid">';
     metrics.forEach(m=>{
-      html+=`<div>
-        <label class="m-label">${m.label} (${m.unit})</label>
-        <input class="m-input" type="${m.type==='text'?'text':'number'}" id="metric-${m.key}" placeholder="${m.type==='weight'?'kg':m.type==='reps'?'reps':m.type==='distance'?m.unit:''}">
-      </div>`;
+      if(m.b){
+        // compound: two inputs side by side
+        html+=`<div class="m-group">
+          <label class="m-label">${m.label}</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <label class="m-label" style="font-size:8px;opacity:0.7">Weight (kg)</label>
+              <input class="m-input" type="number" id="metric-${m.key}" placeholder="kg">
+            </div>
+            <div>
+              <label class="m-label" style="font-size:8px;opacity:0.7">${m.blabel}</label>
+              <input class="m-input" type="number" id="metric-${m.b}" placeholder="${m.blabel.toLowerCase()}">
+            </div>
+          </div>
+        </div>`;
+      } else {
+        html+=`<div class="m-group">
+          <label class="m-label">${m.label} (${m.unit})</label>
+          <input class="m-input" type="${m.type==='text'?'text':'number'}" id="metric-${m.key}" placeholder="${m.unit}">
+        </div>`;
+      }
     });
-    html+='</div>';
   }
   document.getElementById('modal-metrics').innerHTML=html;
   document.getElementById('log-modal').classList.add('open');
@@ -984,7 +999,15 @@ function saveLog(){
   const dayMetrics=DAY_METRICS[day]||[];
   dayMetrics.forEach(m=>{
     const val=document.getElementById('metric-'+m.key)?.value;
-    if(val) entry.metrics[m.key]={value:val,label:m.label,unit:m.unit};
+    if(m.b){
+      const bval=document.getElementById('metric-'+m.b)?.value;
+      if(val||bval){
+        const display=[val?val+'kg':'',bval?bval+(m.blabel.includes('m')?'m':'reps'):''].filter(Boolean).join(' × ');
+        entry.metrics[m.key]={value:display,label:m.label,unit:'',raw:{a:val,b:bval}};
+      }
+    } else {
+      if(val) entry.metrics[m.key]={value:val,label:m.label,unit:m.unit};
+    }
   });
   logs.unshift(entry);
   if(logs.length>50) logs.pop();
@@ -1015,7 +1038,7 @@ const METRIC_GROUPS = [
       {key:'squat',label:'Back Squat',unit:'kg'},
       {key:'rdl',label:'RDL',unit:'kg'},
       {key:'hipthrust',label:'Hip Thrust',unit:'kg'},
-      {key:'calfraises',label:'Calf Raises',unit:'reps'},
+      {key:'calfraises',label:'Calf Raises',unit:'kg × reps'},
       {key:'legpress',label:'Leg Press',unit:'kg'}
     ]
   },
@@ -1023,7 +1046,7 @@ const METRIC_GROUPS = [
     key:'upper',name:'Upper Body',icon:'💪',
     sub:'Pull-ups · Push Press · Lat Pulldown · Back Extension',
     metrics:[
-      {key:'pullups',label:'Pull-ups',unit:'reps'},
+      {key:'pullups',label:'Pull-ups',unit:'kg × reps'},
       {key:'pushpress',label:'Push Press DB',unit:'kg'},
       {key:'latpulldown',label:'Lat Pulldown',unit:'kg'},
       {key:'backextension',label:'Back Extension',unit:'kg'}
@@ -1033,11 +1056,11 @@ const METRIC_GROUPS = [
     key:'hyrox',name:'Hyrox Stations',icon:'🏋️',
     sub:'Sled · Sandbag · Wall Balls · Farmer Carry',
     metrics:[
-      {key:'sled',label:'Sled Push',unit:'kg'},
-      {key:'sledpull',label:'Sled Pull',unit:'m'},
-      {key:'sandbag',label:'Sandbag Lunges',unit:'kg'},
-      {key:'wallballs',label:'Wall Balls',unit:'reps'},
-      {key:'farmcarry',label:'Farmer Carry',unit:'kg'}
+      {key:'sled',label:'Sled Push',unit:'kg × m'},
+      {key:'sledpull',label:'Sled Pull',unit:'kg × m'},
+      {key:'sandbag',label:'Sandbag Lunges',unit:'kg × m'},
+      {key:'wallballs',label:'Wall Balls',unit:'kg × reps'},
+      {key:'farmcarry',label:'Farmer Carry',unit:'kg × m'}
     ]
   },
   {
