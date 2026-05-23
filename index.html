@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HYROX PT">
+<meta name="theme-color" content="#09090f">
+<title>HYROX PT</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p: #7C3AED;
+  --p2: #2563EB;
+  --p3: #EC4899;
+  --pg: linear-gradient(135deg, #7C3AED, #2563EB);
+  --pglow: rgba(124,58,237,0.18);
+  --bglow: rgba(37,99,235,0.12);
+  --bg: #09090f;
+  --s1: #111118;
+  --s2: #18181f;
+  --s3: #202028;
+  --border: #2a2a38;
+  --text: #ede9f8;
+  --sub: #8b8aaa;
+  --dim: #3a3a55;
+  --must-bg: #0c1f14; --must: #4ade80;
+  --physio-bg: #0d1530; --physio: #60a5fa;
+  --warm-bg: #181030; --warm: #a78bfa;
+  --opt-bg: #1a0f2e; --opt: #c084fc;
+  --sauna-bg: #1f0a2e; --sauna: #e879f9;
+  --rec-bg: #0a1828; --rec: #38bdf8;
+  --nav-h: 72px;
+  --safe-top: env(safe-area-inset-top, 44px);
+  --safe-bot: env(safe-area-inset-bottom, 20px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Grid bg */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(124,58,237,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── SCREENS ── */
+.screens {
+  position: fixed; inset: 0;
+  bottom: calc(var(--nav-h) + var(--safe-bot));
+  z-index: 1;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute; inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: none;
+  padding-top: calc(var(--safe-top) + 8px);
+  padding-bottom: 24px;
+}
+.screen.active { display: block; }
+
+/* ── BOTTOM NAV ── */
+.nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: calc(var(--nav-h) + var(--safe-bot));
+  padding-bottom: var(--safe-bot);
+  background: rgba(9,9,15,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  padding-top: 8px;
+  transition: opacity 0.15s;
+  -webkit-user-select: none;
+}
+.nav-item:active { opacity: 0.6; }
+
+.nav-icon {
+  font-size: 22px;
+  line-height: 1;
+  filter: grayscale(1) opacity(0.4);
+  transition: filter 0.15s;
+}
+.nav-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--sub);
+  transition: color 0.15s;
+}
+.nav-item.active .nav-icon { filter: none; }
+.nav-item.active .nav-label { color: var(--p); }
+
+/* ── SHARED COMPONENTS ── */
+.page-header {
+  padding: 12px 18px 8px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+}
+.page-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 28px; letter-spacing: 1.5px;
+  line-height: 1;
+}
+.page-title span { color: var(--p); }
+.page-title em { color: var(--p2); font-style: normal; }
+
+.pill {
+  background: var(--pg);
+  color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 10px; letter-spacing: 0.8px;
+  padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
+}
+
+.card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 0 16px 12px;
+  overflow: hidden;
+}
+
+.tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 9px; letter-spacing: 0.8px;
+  text-transform: uppercase; padding: 2px 7px; border-radius: 2px;
+  white-space: nowrap;
+}
+.t-must { background: var(--must-bg); color: var(--must); }
+.t-physio { background: var(--physio-bg); color: var(--physio); }
+.t-warm { background: var(--warm-bg); color: var(--warm); }
+.t-opt { background: var(--opt-bg); color: var(--opt); }
+.t-sauna { background: var(--sauna-bg); color: var(--sauna); }
+.t-rec { background: var(--rec-bg); color: var(--rec); }
+
+/* ══════════════════════════════════════════
+   SCREEN 1 — THIS WEEK
+══════════════════════════════════════════ */
+
+.week-progress-ring {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  background: var(--s1); border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.ring-wrap { position: relative; width: 56px; height: 56px; flex-shrink: 0; }
+.ring-wrap svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--s3); stroke-width: 4; }
+.ring-fg { fill: none; stroke: url(#ringGrad); stroke-width: 4; stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1); }
+.ring-pct {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 15px; color: var(--text);
+}
+
+.week-meta { flex: 1; }
+.week-meta-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 20px; letter-spacing: 0.5px;
+  color: var(--text);
+}
+.week-meta-sub { font-size: 12px; color: var(--sub); margin-top: 2px; }
+
+/* day tabs */
+.day-tabs {
+  display: flex; gap: 6px;
+  padding: 0 16px 10px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.day-tabs::-webkit-scrollbar { display: none; }
+.day-btn {
+  flex-shrink: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 7px 14px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--s2); color: var(--sub);
+  cursor: pointer; position: relative;
+  min-height: 44px; display: flex; align-items: center;
+  transition: all 0.15s;
+}
+.day-btn.active { background: var(--pg); border-color: transparent; color: white; }
+.day-btn .done-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--must); display: none;
+}
+.day-btn.done .done-dot { display: block; }
+
+/* day view */
+.day-view { display: none; }
+.day-view.active { display: block; }
+
+.day-hero {
+  position: relative;
+  background: var(--pg);
+  border-radius: 12px; margin: 0 16px 2px;
+  padding: 16px; overflow: hidden;
+}
+.day-hero::after {
+  content: attr(data-abbr);
+  position: absolute; right: -6px; top: -8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 80px; letter-spacing: -3px;
+  color: rgba(255,255,255,0.1); line-height: 1;
+  pointer-events: none; user-select: none;
+}
+.day-hero-row { display: flex; justify-content: space-between; align-items: flex-start; }
+.day-hero-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 30px; letter-spacing: 1px;
+  color: white; line-height: 1;
+}
+.day-dur {
+  background: rgba(0,0,0,0.25); color: rgba(255,255,255,0.9);
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+  font-size: 11px; padding: 4px 10px; border-radius: 20px;
+}
+.day-sub { color: rgba(255,255,255,0.75); font-size: 12px; margin-top: 4px; }
+
+/* session complete btn */
+.complete-btn {
+  width: calc(100% - 32px); margin: 10px 16px 4px;
+  background: var(--s2); border: 1px solid var(--border);
+  color: var(--sub);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 13px; letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 14px; border-radius: 10px;
+  cursor: pointer; text-align: center;
+  min-height: 48px;
+  transition: all 0.2s;
+}
+.complete-btn.done {
+  background: var(--must-bg); border-color: var(--must);
+  color: var(--must);
+}
+
+/* block */
+.blk {
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: 0 0 12px 12px;
+  margin: 0 16px 12px;
+  overflow: hidden;
+}
+.blk-hd {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px;
+  background: var(--s2); border-bottom: 1px solid var(--border);
+  cursor: pointer; min-height: 44px;
+}
+.blk-hd-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--sub);
+}
+.blk-arrow { font-size: 10px; color: var(--dim); transition: transform 0.2s; }
+.blk-hd.collapsed .blk-arrow { transform: rotate(-90deg); }
+.blk-body.collapsed { display: none; }
+
+.ss-lbl {
+  padding: 5px 14px 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--p);
+  background: var(--pglow); border-bottom: 1px solid var(--border);
+}
+
+/* exercise row */
+.ex {
+  display: flex; align-items: center;
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  gap: 10px; min-height: 54px; cursor: pointer;
+}
+.ex:last-child { border-bottom: none; }
+.ex:active { background: var(--s2); }
+
+.ex-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--dim); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; font-size: 11px;
+}
+.ex.checked .ex-check {
+  background: var(--must); border-color: var(--must); color: white;
+}
+
+.ex-info { flex: 1; min-width: 0; }
+.ex-name { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.3; }
+.ex.checked .ex-name { color: var(--sub); text-decoration: line-through; }
+.ex-note { font-size: 11px; color: var(--sub); margin-top: 2px; line-height: 1.4; }
+
+.ex-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.ex-sets {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 13px; color: var(--text); white-space: nowrap;
+}
+
+.cue-box {
+  margin: 0 14px 12px; padding: 9px 12px;
+  border-left: 3px solid var(--p2);
+  background: var(--bglow); border-radius: 0 6px 6px 0;
+  font-size: 12px; color: #93c5fd; font-style: italic; line-height: 1.5;
+}
+.cue-box strong { color: #60a5fa; font-style: normal; }
+
+.mob-card {
+  background: var(--rec-bg); border: 1px solid #1a2f45;
+  border-radius: 8px; padding: 12px; margin: 8px 14px;
+}
+.mob-head {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+  font-size: 11px; letter-spacing: 1px; color: var(--rec);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.mob-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; padding: 5px 0;
+  border-bottom: 1px solid #1a2f45; color: #bbb;
+}
+.mob-row:last-child { border-bottom: none; }
+.mob-val { color: var(--rec); font-weight: 600; font-size: 11px; }
+
+.sauna-card {
+  background: var(--sauna-bg); border: 1px solid #3b1a5c;
+  border-radius: 8px; padding: 12px; margin: 8px 14px;
+}
+.sauna-head {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+  font-size: 13px; letter-spacing: 1px; color: var(--sauna);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.sauna-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; padding: 5px 0;
+  border-bottom: 1px solid #3b1a5c; color: #ccc;
+}
+.sauna-row:last-child { border-bottom: none; }
+.sauna-val { color: var(--sauna); font-weight: 600; }
+
+/* ══════════════════════════════════════════
+   SCREEN 2 — DASHBOARD
+══════════════════════════════════════════ */
+
+.countdown-card {
+  margin: 0 16px 14px;
+  background: var(--pg);
+  border-radius: 14px; padding: 20px;
+  position: relative; overflow: hidden;
+}
+.countdown-card::after {
+  content: 'RACE';
+  position: absolute; right: -8px; bottom: -14px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 96px; letter-spacing: -3px;
+  color: rgba(255,255,255,0.08); line-height: 1; pointer-events: none;
+}
+.countdown-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,0.7);
+  margin-bottom: 6px;
+}
+.countdown-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 64px; color: white; line-height: 1;
+  letter-spacing: -1px;
+}
+.countdown-sub { font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin: 0 16px 14px;
+}
+.stat-card {
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px;
+}
+.stat-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--sub); margin-bottom: 6px;
+}
+.stat-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 28px; color: var(--text); line-height: 1;
+}
+.stat-unit { font-size: 12px; color: var(--sub); margin-left: 2px; font-weight: 400; }
+.stat-trend { font-size: 11px; color: var(--must); margin-top: 4px; }
+
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--sub);
+  padding: 4px 18px 8px;
+}
+
+.metric-row {
+  display: flex; align-items: center;
+  padding: 12px 16px; gap: 12px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; min-height: 56px;
+}
+.metric-row:last-child { border-bottom: none; }
+.metric-row:active { background: var(--s2); }
+.metric-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--pglow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.metric-info { flex: 1; }
+.metric-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.metric-sub { font-size: 11px; color: var(--sub); margin-top: 2px; }
+.metric-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 18px; color: var(--p);
+  text-align: right;
+}
+.metric-val span { font-size: 11px; color: var(--sub); font-weight: 400; font-family: 'Barlow', sans-serif; }
+
+/* week completion bars */
+.week-bar-wrap { margin: 0 16px 12px; }
+.week-bar-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.week-bar-row:last-child { border-bottom: none; }
+.week-bar-lbl {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 11px; color: var(--sub); width: 48px; flex-shrink: 0;
+}
+.week-bar-track {
+  flex: 1; height: 6px; background: var(--s3); border-radius: 3px; overflow: hidden;
+}
+.week-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: var(--pg);
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.week-bar-pct {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 11px; color: var(--text); width: 32px; text-align: right;
+}
+
+/* ══════════════════════════════════════════
+   SCREEN 3 — LOG
+══════════════════════════════════════════ */
+
+.log-form { padding: 0 16px; }
+
+.form-group { margin-bottom: 16px; }
+.form-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--sub); margin-bottom: 8px; display: block;
+}
+.form-input {
+  width: 100%; background: var(--s2);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px;
+  padding: 13px 14px; outline: none; min-height: 48px;
+  -webkit-appearance: none; appearance: none;
+}
+.form-input:focus { border-color: var(--p); }
+
+.form-select {
+  width: 100%; background: var(--s2);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px;
+  padding: 13px 14px; outline: none; min-height: 48px;
+  -webkit-appearance: none; appearance: none;
+}
+
+.metric-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.feeling-row { display: flex; gap: 8px; }
+.feeling-btn {
+  flex: 1; padding: 12px 6px;
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 10px; text-align: center;
+  font-size: 20px; cursor: pointer; min-height: 48px;
+  transition: all 0.15s;
+}
+.feeling-btn:active { transform: scale(0.95); }
+.feeling-btn.selected { border-color: var(--p); background: var(--pglow); }
+
+.submit-btn {
+  width: 100%; margin-top: 8px;
+  background: var(--pg);
+  border: none; border-radius: 12px;
+  color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 15px; letter-spacing: 1px;
+  text-transform: uppercase; padding: 16px;
+  cursor: pointer; min-height: 54px;
+}
+.submit-btn:active { opacity: 0.85; }
+
+/* log history */
+.log-entry {
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px;
+  margin: 0 16px 10px;
+}
+.log-entry-date {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--sub); margin-bottom: 8px;
+}
+.log-entry-metrics { display: flex; flex-wrap: wrap; gap: 8px; }
+.log-chip {
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 10px;
+  font-size: 12px; color: var(--text);
+}
+.log-chip strong { color: var(--p); }
+
+/* ══════════════════════════════════════════
+   SCREEN 4 — PT CHECK-IN
+══════════════════════════════════════════ */
+
+.checkin-intro {
+  margin: 0 16px 16px;
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px;
+}
+.checkin-intro-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 16px; letter-spacing: 0.5px;
+  color: var(--text); margin-bottom: 6px;
+}
+.checkin-intro-sub { font-size: 12px; color: var(--sub); line-height: 1.5; }
+
+.slider-wrap { padding: 4px 0 8px; }
+.slider-label-row {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--sub); margin-bottom: 6px;
+}
+input[type=range] {
+  width: 100%; height: 6px;
+  -webkit-appearance: none; appearance: none;
+  background: var(--s3); border-radius: 3px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 22px; height: 22px;
+  border-radius: 50%; background: var(--pg);
+  cursor: pointer; border: 2px solid white;
+}
+
+/* AI response */
+.ai-response {
+  margin: 0 16px 16px;
+  background: var(--s1); border: 1px solid var(--p);
+  border-radius: 12px; padding: 16px;
+  display: none;
+}
+.ai-response.visible { display: block; }
+.ai-response-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.ai-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--pg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.ai-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 14px; color: var(--p); letter-spacing: 0.5px;
+}
+.ai-sub { font-size: 11px; color: var(--sub); }
+.ai-text {
+  font-size: 13px; color: var(--text); line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.loading-dots {
+  display: flex; gap: 6px; align-items: center; padding: 8px 0;
+}
+.loading-dots span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--p); animation: dot 1.2s infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+/* ── MISC ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.screen.active { animation: fadeUp 0.2s ease; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- ══ SCREENS ══ -->
+<div class="screens">
+
+<!-- ─── SCREEN: PLAN ─── -->
+<div class="screen active" id="screen-plan">
+  <div class="page-header">
+    <div class="page-title">THIS <span>WEEK</span></div>
+    <div class="pill">Week 6</div>
+  </div>
+
+  <div class="week-progress-ring">
+    <div class="ring-wrap">
+      <svg width="56" height="56" viewBox="0 0 56 56">
+        <circle class="ring-bg" cx="28" cy="28" r="24"/>
+        <circle class="ring-fg" id="progressRing" cx="28" cy="28" r="24"
+          stroke-dasharray="150.8" stroke-dashoffset="150.8"/>
+      </svg>
+      <div class="ring-pct" id="progressPct">0%</div>
+    </div>
+    <div class="week-meta">
+      <div class="week-meta-title">Week 6 of 9</div>
+      <div class="week-meta-sub">Race: 2 July · <span id="daysLeft">—</span> days to go</div>
+    </div>
+  </div>
+
+  <div class="day-tabs">
+    <div class="day-btn active" onclick="showDay('mon',this)" id="tab-mon">MON</div>
+    <div class="day-btn" onclick="showDay('tue',this)" id="tab-tue">TUE</div>
+    <div class="day-btn" onclick="showDay('wed',this)" id="tab-wed">WED</div>
+    <div class="day-btn" onclick="showDay('thu',this)" id="tab-thu">THU</div>
+    <div class="day-btn" onclick="showDay('fri',this)" id="tab-fri">FRI</div>
+    <div class="day-btn" onclick="showDay('sat',this)" id="tab-sat">SAT</div>
+    <div class="day-btn" onclick="showDay('sun',this)" id="tab-sun">SUN</div>
+  </div>
+
+  <!-- MONDAY -->
+  <div class="day-view active" id="day-mon">
+    <div class="day-hero" data-abbr="MON">
+      <div class="day-hero-row"><div class="day-hero-title">MONDAY</div><div class="day-dur">60 MIN</div></div>
+      <div class="day-sub">Full Body Strength — Legs Focus</div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Warm-Up</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Pogo Hops</div><div class="ex-note">Fast, light — ankle stiffness + tendon prep</div></div><div class="ex-right"><div class="ex-sets">2×20</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Hip Airplanes</div><div class="ex-note">Slow — single-leg balance + glute activation</div></div><div class="ex-right"><div class="ex-sets">2×6/side</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Goblet Squat Hold</div><div class="ex-note">3-sec pause at bottom — ankle + thoracic mobility</div></div><div class="ex-right"><div class="ex-sets">2×8</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Banded Glute Walks</div><div class="ex-note">Lateral + forward — glute med activation</div></div><div class="ex-right"><div class="ex-sets">2×10/dir</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Hip Hinge to Wall</div><div class="ex-note">Posterior chain pattern — primes squat mechanics</div></div><div class="ex-right"><div class="ex-sets">2×8</div><div class="tag t-warm">Warm</div></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Main Block</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Back Squat</div><div class="ex-note">Controlled descent, drive through heels</div></div><div class="ex-right"><div class="ex-sets">4×5 @70kg</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Hip Thrust</div><div class="ex-note">1-sec squeeze at top — glute max focus</div></div><div class="ex-right"><div class="ex-sets">3×10 @80kg</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">RDL</div><div class="ex-note">Hinge until hamstring loads — not a squat</div></div><div class="ex-right"><div class="ex-sets">3×8 @50kg</div><div class="tag t-must">Must</div></div></div>
+        <div class="ss-lbl">Superset A</div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Bulgarian Split Squat</div><div class="ex-note">Rear leg focus — feel glute lengthen at bottom</div></div><div class="ex-right"><div class="ex-sets">3×6/side</div><div class="tag t-physio">Physio</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Calf Raises</div><div class="ex-note">Full range — 3-sec eccentric, pause at bottom</div></div><div class="ex-right"><div class="ex-sets">3×15</div><div class="tag t-must">Must</div></div></div>
+        <div class="cue-box"><strong>Cue:</strong> Bulgarians — rear glute lengthens at the bottom. Feel it stretch, don't rush.</div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Daily Mobility</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="mob-card"><div class="mob-head">Daily Physio</div><div class="mob-row"><span>Wall Slide Single Arm</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Banded Reach & Rotate</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Cat-Cow Segmental</span><span class="mob-val">10 reps</span></div><div class="mob-row"><span>Trigger Ball Releases</span><span class="mob-val">Optional</span></div></div>
+        <div class="mob-card"><div class="mob-head">Evening — Posterior Chain Flush</div><div class="mob-row"><span>Pigeon Stretch</span><span class="mob-val">90s/side</span></div><div class="mob-row"><span>Hip Flexor Stretch</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Hamstring Lengthening</span><span class="mob-val">2×30s</span></div><div class="mob-row"><span>Calf Foam Roll</span><span class="mob-val">60s/leg</span></div><div class="mob-row"><span>Couch Stretch</span><span class="mob-val">60s/side</span></div></div>
+      </div>
+    </div>
+    <button class="complete-btn" id="complete-mon" onclick="completeDay('mon')">Mark Session Complete</button>
+  </div>
+
+  <!-- TUESDAY -->
+  <div class="day-view" id="day-tue">
+    <div class="day-hero" data-abbr="TUE">
+      <div class="day-hero-row"><div class="day-hero-title">TUESDAY</div><div class="day-dur">60 MIN</div></div>
+      <div class="day-sub">Upper Body Strength + Core</div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Warm-Up</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Wall Slide Single Arm</div><div class="ex-note">Physio — scapular control + thoracic extension</div></div><div class="ex-right"><div class="ex-sets">3×5/side</div><div class="tag t-physio">Physio</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Banded Reach & Rotate</div><div class="ex-note">Physio — thoracic rotation + rib cage expansion</div></div><div class="ex-right"><div class="ex-sets">3×5/side</div><div class="tag t-physio">Physio</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Cat-Cow Segmental</div><div class="ex-note">Breathe into each segment — upper thoracic prep</div></div><div class="ex-right"><div class="ex-sets">10 reps</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Band Pull-Aparts</div><div class="ex-note">Scapular retraction — primes rear delt + mid trap</div></div><div class="ex-right"><div class="ex-sets">2×15</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Hanging Scapular Shrugs</div><div class="ex-note">Active hang — lat activation before pulldowns</div></div><div class="ex-right"><div class="ex-sets">2×8</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Push Press Practice Reps</div><div class="ex-note">Light — dip-drive timing, wrist stack</div></div><div class="ex-right"><div class="ex-sets">2×5 light</div><div class="tag t-warm">Warm</div></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Main Block</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ss-lbl">Superset A — Push / Pull</div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Push Press DB</div><div class="ex-note">Slow 3-sec eccentric — overhead for ski erg</div></div><div class="ex-right"><div class="ex-sets">3×8</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Lat Pulldown</div><div class="ex-note">Full stretch at top — ski erg pull pattern</div></div><div class="ex-right"><div class="ex-sets">3×10</div><div class="tag t-must">Must</div></div></div>
+        <div class="ss-lbl">Superset B — Push / Pull</div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">DB Bench Press</div></div><div class="ex-right"><div class="ex-sets">3×10</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Straight Arm Pulldown</div><div class="ex-note">Cable — lat isolation, ski erg transfer</div></div><div class="ex-right"><div class="ex-sets">3×12</div><div class="tag t-must">Must</div></div></div>
+        <div class="ss-lbl">Accessories</div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">DB Pullover</div><div class="ex-note">Lats + serratus — overhead stability</div></div><div class="ex-right"><div class="ex-sets">3×12</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Back Extension</div><div class="ex-note">Slow — spinal erectors + glutes</div></div><div class="ex-right"><div class="ex-sets">3×12</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">YTW with DBs</div><div class="ex-note">Mid/lower trap — desk posture</div></div><div class="ex-right"><div class="ex-sets">2×10</div><div class="tag t-opt">Opt</div></div></div>
+        <div class="ss-lbl">Core</div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Plank Variations</div><div class="ex-note">Standard → shoulder tap → body saw</div></div><div class="ex-right"><div class="ex-sets">3×30s</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Dead Bug</div><div class="ex-note">Exhale as arm/leg extend</div></div><div class="ex-right"><div class="ex-sets">3×8/side</div><div class="tag t-must">Must</div></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Daily Mobility</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="mob-card"><div class="mob-head">Daily Physio</div><div class="mob-row"><span>Wall Slide Single Arm</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Banded Reach & Rotate</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Cat-Cow Segmental</span><span class="mob-val">10 reps</span></div><div class="mob-row"><span>Trigger Ball Releases</span><span class="mob-val">Optional</span></div></div>
+        <div class="mob-card"><div class="mob-head">Evening — Thoracic Release</div><div class="mob-row"><span>Trigger Ball — Pecs</span><span class="mob-val">90s/side</span></div><div class="mob-row"><span>Trigger Ball — Upper Traps</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Trigger Ball — Lats</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Thread the Needle</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Doorway Chest Stretch</span><span class="mob-val">2×30s</span></div></div>
+      </div>
+    </div>
+    <button class="complete-btn" id="complete-tue" onclick="completeDay('tue')">Mark Session Complete</button>
+  </div>
+
+  <!-- WEDNESDAY -->
+  <div class="day-view" id="day-wed">
+    <div class="day-hero" data-abbr="WED">
+      <div class="day-hero-row"><div class="day-hero-title">WEDNESDAY</div><div class="day-dur">60 MIN</div></div>
+      <div class="day-sub">Hyrox Station Strength — Glute Focus</div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Warm-Up</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Dead Hangs</div><div class="ex-note">Decompress spine + grip activation</div></div><div class="ex-right"><div class="ex-sets">3×20s</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Goblet Squat</div><div class="ex-note">Deep hold — thruster bottom position prep</div></div><div class="ex-right"><div class="ex-sets">2×10</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Clamshells</div><div class="ex-note">Banded — glute med activation</div></div><div class="ex-right"><div class="ex-sets">2×15/side</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Fire Hydrants</div><div class="ex-note">All glute fibres — neural activation</div></div><div class="ex-right"><div class="ex-sets">2×12/side</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Lateral Band Walks</div><div class="ex-note">Monster walks — hip stability for sled</div></div><div class="ex-right"><div class="ex-sets">2×10/dir</div><div class="tag t-warm">Warm</div></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Main Block</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ss-lbl">Superset A — Power + Leg Press</div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">DB Thrusters</div><div class="ex-note">Full hip extension at top — wall ball + ski erg carry-over</div></div><div class="ex-right"><div class="ex-sets">4×10</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Leg Press</div><div class="ex-note">Full range — quad + glute volume</div></div><div class="ex-right"><div class="ex-sets">3×12</div><div class="tag t-must">Must</div></div></div>
+        <div class="ss-lbl">Superset B — Posterior Chain</div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">KB Swings</div><div class="ex-note">Hip hinge snap — glute + hamstring power</div></div><div class="ex-right"><div class="ex-sets">4×15</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Bulgarian Split Squat</div><div class="ex-note">Rear leg focus — physio prescribed</div></div><div class="ex-right"><div class="ex-sets">3×6/side</div><div class="tag t-physio">Physio</div></div></div>
+        <div class="ss-lbl">Superset C — Conditioning + Lunges</div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Rope Slams</div><div class="ex-note">Explosive full body — race conditioning</div></div><div class="ex-right"><div class="ex-sets">3×15s</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Sandbag Lunges</div><div class="ex-note">20 kg — glute drives push-off</div></div><div class="ex-right"><div class="ex-sets">3×25m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ss-lbl">Finisher</div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Sled Push</div><div class="ex-note">152 kg race weight — short steps, hips through</div></div><div class="ex-right"><div class="ex-sets">3×25m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Calf Raises</div><div class="ex-note">3-sec eccentric, full range</div></div><div class="ex-right"><div class="ex-sets">3×15</div><div class="tag t-must">Must</div></div></div>
+        <div class="cue-box"><strong>Glute cue:</strong> KB swings, Bulgarians, lunges — feel the glute, not the quad. Knee working = reset and go lighter.</div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Daily Mobility</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="mob-card"><div class="mob-head">Daily Physio</div><div class="mob-row"><span>Wall Slide Single Arm</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Banded Reach & Rotate</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Cat-Cow Segmental</span><span class="mob-val">10 reps</span></div><div class="mob-row"><span>Trigger Ball Releases</span><span class="mob-val">Optional</span></div></div>
+        <div class="mob-card"><div class="mob-head">Evening — Glute + Hip Recovery</div><div class="mob-row"><span>Pigeon Stretch</span><span class="mob-val">2×90s/side</span></div><div class="mob-row"><span>Hip Flexor Stretch</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Calf + Achilles Stretch</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>IT Band Foam Roll</span><span class="mob-val">90s/leg</span></div><div class="mob-row"><span>Couch Stretch</span><span class="mob-val">60s/side</span></div></div>
+      </div>
+    </div>
+    <button class="complete-btn" id="complete-wed" onclick="completeDay('wed')">Mark Session Complete</button>
+  </div>
+
+  <!-- THURSDAY -->
+  <div class="day-view" id="day-thu">
+    <div class="day-hero" data-abbr="THU">
+      <div class="day-hero-row"><div class="day-hero-title">THURSDAY</div><div class="day-dur">50 MIN</div></div>
+      <div class="day-sub">Easy Run — 8 km Zone 2</div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Pre-Run Warm-Up</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Ankle Circles</div></div><div class="ex-right"><div class="ex-sets">2×10</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Leg Swings</div><div class="ex-note">Forward + lateral</div></div><div class="ex-right"><div class="ex-sets">2×10/dir</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Hip Circles</div><div class="ex-note">Reduce ITB tension early</div></div><div class="ex-right"><div class="ex-sets">2×10/side</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">A-Skip Build</div><div class="ex-note">Running mechanics rehearsal</div></div><div class="ex-right"><div class="ex-sets">2×20m</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Cat-Cow Segmental</div></div><div class="ex-right"><div class="ex-sets">8 reps</div><div class="tag t-warm">Warm</div></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Run</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Easy Run — Zone 2</div><div class="ex-note">Full sentences throughout. Slow is the point.</div></div><div class="ex-right"><div class="ex-sets">8 km</div><div class="tag t-must">Must</div></div></div>
+        <div class="cue-box"><strong>Zone 2:</strong> If you can't speak in full sentences, you're going too hard.</div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Daily Mobility</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="mob-card"><div class="mob-head">Daily Physio</div><div class="mob-row"><span>Wall Slide Single Arm</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Banded Reach & Rotate</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Cat-Cow Segmental</span><span class="mob-val">10 reps</span></div><div class="mob-row"><span>Trigger Ball Releases</span><span class="mob-val">Optional</span></div></div>
+        <div class="mob-card"><div class="mob-head">Evening — Running Recovery</div><div class="mob-row"><span>Calf + Achilles Stretch</span><span class="mob-val">2×60s/side</span></div><div class="mob-row"><span>IT Band Foam Roll</span><span class="mob-val">90s/leg</span></div><div class="mob-row"><span>Glute Stretch (figure 4)</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Hip Flexor Stretch</span><span class="mob-val">60s/side</span></div></div>
+      </div>
+    </div>
+    <button class="complete-btn" id="complete-thu" onclick="completeDay('thu')">Mark Session Complete</button>
+  </div>
+
+  <!-- FRIDAY -->
+  <div class="day-view" id="day-fri">
+    <div class="day-hero" data-abbr="FRI">
+      <div class="day-hero-row"><div class="day-hero-title">FRIDAY</div><div class="day-dur">60 MIN</div></div>
+      <div class="day-sub">Hyrox Class — Conditioning</div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Hyrox Class</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Hyrox Class — Full Session</div><div class="ex-note">Warm-up included. Pace discipline — don't blow up early.</div></div><div class="ex-right"><div class="ex-sets">60 min</div><div class="tag t-must">Must</div></div></div>
+        <div class="cue-box"><strong>Pacing:</strong> Leave something in stations 1–4. Back half is where fitness shows.</div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Sauna + Cold Plunge</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="sauna-card"><div class="sauna-head">✦ Contrast Recovery</div><div class="sauna-row"><span>Sauna</span><span class="sauna-val">3× 8 min</span></div><div class="sauna-row"><span>Cold plunge/shower</span><span class="sauna-val">2–3 min between</span></div><div class="sauna-row"><span>Rounds</span><span class="sauna-val">3 rounds</span></div><div class="sauna-row"><span>End on</span><span class="sauna-val">Cold</span></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Daily Mobility</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="mob-card"><div class="mob-head">Daily Physio</div><div class="mob-row"><span>Wall Slide Single Arm</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Banded Reach & Rotate</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Cat-Cow Segmental</span><span class="mob-val">10 reps</span></div><div class="mob-row"><span>Trigger Ball Releases</span><span class="mob-val">Optional</span></div></div>
+        <div class="mob-card"><div class="mob-head">Evening — Full Recovery</div><div class="mob-row"><span>Trigger Ball — Upper Traps</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Trigger Ball — Lats</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Pigeon Stretch</span><span class="mob-val">90s/side</span></div><div class="mob-row"><span>Hip Flexor Stretch</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Calf Foam Roll</span><span class="mob-val">60s/leg</span></div></div>
+      </div>
+    </div>
+    <button class="complete-btn" id="complete-fri" onclick="completeDay('fri')">Mark Session Complete</button>
+  </div>
+
+  <!-- SATURDAY -->
+  <div class="day-view" id="day-sat">
+    <div class="day-hero" data-abbr="SAT">
+      <div class="day-hero-row"><div class="day-hero-title">SATURDAY</div><div class="day-dur">90 MIN</div></div>
+      <div class="day-sub">Long Run — 13.3 km</div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Pre-Run Warm-Up</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Ankle Rolls</div></div><div class="ex-right"><div class="ex-sets">2×10/dir</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Leg Swings</div></div><div class="ex-right"><div class="ex-sets">2×10/dir</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Glute Activation March</div><div class="ex-note">High knee + glute squeeze</div></div><div class="ex-right"><div class="ex-sets">2×20m</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Dynamic Pigeon</div><div class="ex-note">Moving — not static</div></div><div class="ex-right"><div class="ex-sets">8/side</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Cat-Cow Segmental</div></div><div class="ex-right"><div class="ex-sets">8 reps</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">2 min Easy Jog</div></div><div class="ex-right"><div class="ex-sets">2 min</div><div class="tag t-warm">Warm</div></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Long Run</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Long Run — Zone 2</div><div class="ex-note">HR &lt;155 bpm. If HR climbs, walk.</div></div><div class="ex-right"><div class="ex-sets">13.3 km</div><div class="tag t-must">Must</div></div></div>
+        <div class="cue-box"><strong>Final 3 km:</strong> Glutes driving, not quads grinding. Hold form.</div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Sauna + Cold Plunge</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="sauna-card"><div class="sauna-head">✦ Contrast Recovery</div><div class="sauna-row"><span>Sauna</span><span class="sauna-val">3× 8 min</span></div><div class="sauna-row"><span>Cold plunge/shower</span><span class="sauna-val">2–3 min between</span></div><div class="sauna-row"><span>Rounds</span><span class="sauna-val">3 rounds</span></div><div class="sauna-row"><span>End on</span><span class="sauna-val">Cold</span></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Daily Mobility</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="mob-card"><div class="mob-head">Daily Physio</div><div class="mob-row"><span>Wall Slide Single Arm</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Banded Reach & Rotate</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Cat-Cow Segmental</span><span class="mob-val">10 reps</span></div><div class="mob-row"><span>Trigger Ball Releases</span><span class="mob-val">Optional</span></div></div>
+        <div class="mob-card"><div class="mob-head">Evening — Long Run Recovery</div><div class="mob-row"><span>Calf + Achilles Stretch</span><span class="mob-val">2×60s/side</span></div><div class="mob-row"><span>IT Band Foam Roll</span><span class="mob-val">2×90s/leg</span></div><div class="mob-row"><span>Pigeon Stretch</span><span class="mob-val">2×90s/side</span></div><div class="mob-row"><span>Hamstring Lengthening</span><span class="mob-val">2×30s</span></div><div class="mob-row"><span>Hip Flexor Stretch</span><span class="mob-val">60s/side</span></div></div>
+      </div>
+    </div>
+    <button class="complete-btn" id="complete-sat" onclick="completeDay('sat')">Mark Session Complete</button>
+  </div>
+
+  <!-- SUNDAY -->
+  <div class="day-view" id="day-sun">
+    <div class="day-hero" data-abbr="SUN">
+      <div class="day-hero-row"><div class="day-hero-title">SUNDAY</div><div class="day-dur">90 MIN</div></div>
+      <div class="day-sub">Hyrox Half Sim — With Partner</div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Warm-Up</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Ski Erg Arm Swing Pattern</div><div class="ex-note">No resistance — hips first</div></div><div class="ex-right"><div class="ex-sets">2×10</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Goblet Squat</div></div><div class="ex-right"><div class="ex-sets">2×8</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Farmer Carry Walk</div><div class="ex-note">Grip + posture primer</div></div><div class="ex-right"><div class="ex-sets">2×20m</div><div class="tag t-warm">Warm</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Easy Jog Build</div><div class="ex-note">2 min easy → 30 sec race pace</div></div><div class="ex-right"><div class="ex-sets">3 min</div><div class="tag t-warm">Warm</div></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Half Sim — Shared With Partner</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Run</div></div><div class="ex-right"><div class="ex-sets">500m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Ski Erg</div><div class="ex-note">Split — hips initiate, 0 arm-led reps</div></div><div class="ex-right"><div class="ex-sets">600m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Run</div></div><div class="ex-right"><div class="ex-sets">500m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Sled Push</div><div class="ex-note">Split — race weight, hips through</div></div><div class="ex-right"><div class="ex-sets">25m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Run</div></div><div class="ex-right"><div class="ex-sets">500m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Sled Pull</div><div class="ex-note">Elbow to back pocket — hip drive</div></div><div class="ex-right"><div class="ex-sets">25m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Run</div></div><div class="ex-right"><div class="ex-sets">500m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Burpee Broad Jumps</div><div class="ex-note">Split — explosive hip extension</div></div><div class="ex-right"><div class="ex-sets">Share</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Run</div></div><div class="ex-right"><div class="ex-sets">500m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Farmer Carries</div><div class="ex-note">24 kg/hand — grip strong, shoulders packed</div></div><div class="ex-right"><div class="ex-sets">2×25m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Run</div></div><div class="ex-right"><div class="ex-sets">500m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Rowing</div><div class="ex-note">Split — negative split, hold past 300m</div></div><div class="ex-right"><div class="ex-sets">600m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Run</div></div><div class="ex-right"><div class="ex-sets">500m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Wall Balls</div><div class="ex-note">5 kg — 14+ unbroken target</div></div><div class="ex-right"><div class="ex-sets">Share</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Run</div></div><div class="ex-right"><div class="ex-sets">500m</div><div class="tag t-must">Must</div></div></div>
+        <div class="ex" onclick="toggleEx(this)"><div class="ex-check">✓</div><div class="ex-info"><div class="ex-name">Sandbag Lunges</div><div class="ex-note">20 kg — glute drives push-off</div></div><div class="ex-right"><div class="ex-sets">25m</div><div class="tag t-must">Must</div></div></div>
+        <div class="cue-box"><strong>Sim:</strong> Record transition times. Race the final run. Stay analytical.</div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Sauna + Cold Plunge</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="sauna-card"><div class="sauna-head">✦ Contrast Recovery</div><div class="sauna-row"><span>Sauna</span><span class="sauna-val">3× 8 min</span></div><div class="sauna-row"><span>Cold plunge/shower</span><span class="sauna-val">2–3 min between</span></div><div class="sauna-row"><span>Rounds</span><span class="sauna-val">3 rounds</span></div><div class="sauna-row"><span>End on</span><span class="sauna-val">Cold</span></div></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-hd" onclick="toggleBlk(this)"><span class="blk-hd-label">Daily Mobility</span><span class="blk-arrow">▼</span></div>
+      <div class="blk-body">
+        <div class="mob-card"><div class="mob-head">Daily Physio</div><div class="mob-row"><span>Wall Slide Single Arm</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Banded Reach & Rotate</span><span class="mob-val">3×5/side</span></div><div class="mob-row"><span>Cat-Cow Segmental</span><span class="mob-val">10 reps</span></div><div class="mob-row"><span>Trigger Ball Releases</span><span class="mob-val">Optional</span></div></div>
+        <div class="mob-card"><div class="mob-head">Evening — Race Prep (Light Only)</div><div class="mob-row"><span>Couch Stretch</span><span class="mob-val">90s/side</span></div><div class="mob-row"><span>Hip Flexor Stretch</span><span class="mob-val">60s/side</span></div><div class="mob-row"><span>Nothing that creates soreness</span><span class="mob-val">—</span></div></div>
+      </div>
+    </div>
+    <button class="complete-btn" id="complete-sun" onclick="completeDay('sun')">Mark Session Complete</button>
+  </div>
+</div>
+
+<!-- ─── SCREEN: DASHBOARD ─── -->
+<div class="screen" id="screen-dash">
+  <div class="page-header">
+    <div class="page-title">DASH<em>BOARD</em></div>
+  </div>
+
+  <div class="countdown-card">
+    <div class="countdown-label">Days Until Race Day</div>
+    <div class="countdown-num" id="countdownNum">—</div>
+    <div class="countdown-sub">Hyrox Mixed Doubles · 2 July 2026</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Week</div>
+      <div class="stat-val">6<span class="stat-unit">of 9</span></div>
+      <div class="stat-trend">↑ On track</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">This Week</div>
+      <div class="stat-val" id="dashWeekPct">0<span class="stat-unit">%</span></div>
+      <div class="stat-trend" id="dashDaysLeft">0 / 7 sessions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Long Run</div>
+      <div class="stat-val">13.3<span class="stat-unit">km</span></div>
+      <div class="stat-trend">↑ +1 km this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Sled Weight</div>
+      <div class="stat-val">152<span class="stat-unit">kg</span></div>
+      <div class="stat-trend">✓ Race weight</div>
+    </div>
+  </div>
+
+  <div class="section-title">Key Metrics</div>
+  <div class="card">
+    <div class="metric-row" onclick="openMetricLog('wallball')">
+      <div class="metric-icon">🎯</div>
+      <div class="metric-info"><div class="metric-name">Wall Ball</div><div class="metric-sub">Unbroken reps @ 5 kg</div></div>
+      <div class="metric-val" id="metric-wallball">10 <span>reps</span></div>
+    </div>
+    <div class="metric-row" onclick="openMetricLog('run')">
+      <div class="metric-icon">🏃</div>
+      <div class="metric-info"><div class="metric-name">8 km Run Pace</div><div class="metric-sub">Zone 2 average</div></div>
+      <div class="metric-val" id="metric-run">— <span>min/km</span></div>
+    </div>
+    <div class="metric-row" onclick="openMetricLog('farmers')">
+      <div class="metric-icon">💪</div>
+      <div class="metric-info"><div class="metric-name">Farmer Carries</div><div class="metric-sub">Working weight</div></div>
+      <div class="metric-val" id="metric-farmers">24 <span>kg</span></div>
+    </div>
+    <div class="metric-row" onclick="openMetricLog('squat')">
+      <div class="metric-icon">🏋️</div>
+      <div class="metric-info"><div class="metric-name">Back Squat</div><div class="metric-sub">Working weight</div></div>
+      <div class="metric-val" id="metric-squat">70 <span>kg</span></div>
+    </div>
+    <div class="metric-row" onclick="openMetricLog('row')">
+      <div class="metric-icon">🚣</div>
+      <div class="metric-info"><div class="metric-name">Row 500m Split</div><div class="metric-sub">Sim pace</div></div>
+      <div class="metric-val" id="metric-row">— <span>min</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">Weekly Completion</div>
+  <div class="card" style="padding: 12px 14px;">
+    <div class="week-bar-wrap" style="margin:0">
+      <div class="week-bar-row"><div class="week-bar-lbl">Wk 1</div><div class="week-bar-track"><div class="week-bar-fill" style="width:100%"></div></div><div class="week-bar-pct">100%</div></div>
+      <div class="week-bar-row"><div class="week-bar-lbl">Wk 2</div><div class="week-bar-track"><div class="week-bar-fill" style="width:100%"></div></div><div class="week-bar-pct">100%</div></div>
+      <div class="week-bar-row"><div class="week-bar-lbl">Wk 3</div><div class="week-bar-track"><div class="week-bar-fill" style="width:100%"></div></div><div class="week-bar-pct">100%</div></div>
+      <div class="week-bar-row"><div class="week-bar-lbl">Wk 4</div><div class="week-bar-track"><div class="week-bar-fill" style="width:100%"></div></div><div class="week-bar-pct">100%</div></div>
+      <div class="week-bar-row"><div class="week-bar-lbl">Wk 5</div><div class="week-bar-track"><div class="week-bar-fill" style="width:100%"></div></div><div class="week-bar-pct">100%</div></div>
+      <div class="week-bar-row"><div class="week-bar-lbl">Wk 6</div><div class="week-bar-track"><div class="week-bar-fill" id="wk6bar" style="width:0%"></div></div><div class="week-bar-pct" id="wk6pct">0%</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCREEN: LOG ─── -->
+<div class="screen" id="screen-log">
+  <div class="page-header">
+    <div class="page-title">LOG <span>SESSION</span></div>
+  </div>
+  <div class="log-form">
+    <div class="form-group">
+      <label class="form-label">Session</label>
+      <select class="form-select" id="log-session">
+        <option>Monday — Full Body Strength</option>
+        <option>Tuesday — Upper Body + Core</option>
+        <option>Wednesday — Hyrox Station Strength</option>
+        <option>Thursday — Easy Run 8 km</option>
+        <option>Friday — Hyrox Class</option>
+        <option>Saturday — Long Run 13.3 km</option>
+        <option>Sunday — Hyrox Half Sim</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">How did it feel?</label>
+      <div class="feeling-row">
+        <div class="feeling-btn" onclick="selectFeeling(this,'💀')">💀<br><small style="font-size:9px;color:var(--sub)">Dead</small></div>
+        <div class="feeling-btn" onclick="selectFeeling(this,'😤')">😤<br><small style="font-size:9px;color:var(--sub)">Hard</small></div>
+        <div class="feeling-btn" onclick="selectFeeling(this,'👊')">👊<br><small style="font-size:9px;color:var(--sub)">Good</small></div>
+        <div class="feeling-btn" onclick="selectFeeling(this,'🔥')">🔥<br><small style="font-size:9px;color:var(--sub)">Beast</small></div>
+      </div>
+      <input type="hidden" id="log-feeling" value="">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Key Numbers</label>
+      <div class="metric-inputs">
+        <div><label class="form-label" style="font-size:9px">Wall Ball (reps)</label><input class="form-input" type="number" id="log-wb" placeholder="e.g. 12"></div>
+        <div><label class="form-label" style="font-size:9px">Run Pace (min/km)</label><input class="form-input" type="text" id="log-pace" placeholder="e.g. 5:45"></div>
+        <div><label class="form-label" style="font-size:9px">Squat (kg)</label><input class="form-input" type="number" id="log-squat" placeholder="e.g. 70"></div>
+        <div><label class="form-label" style="font-size:9px">Farmer Carry (kg)</label><input class="form-input" type="number" id="log-fc" placeholder="e.g. 24"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-input" id="log-notes" rows="3" placeholder="What felt good? What was hard? Knee status?" style="resize:none;min-height:80px"></textarea>
+    </div>
+    <button class="submit-btn" onclick="saveLog()">Save Session Log</button>
+  </div>
+
+  <div style="padding: 20px 16px 8px;">
+    <div class="section-title" style="padding: 0 0 8px;">Recent Logs</div>
+    <div id="log-history"></div>
+  </div>
+</div>
+
+<!-- ─── SCREEN: PT CHECK-IN ─── -->
+<div class="screen" id="screen-pt">
+  <div class="page-header">
+    <div class="page-title">PT <span>CHECK-IN</span></div>
+  </div>
+
+  <div class="checkin-intro">
+    <div class="checkin-intro-title">Weekly Assessment</div>
+    <div class="checkin-intro-sub">Tell your PT how the week went. Claude will read your full training context — physio requirements, race goals, progression rules — and generate next week's plan.</div>
+  </div>
+
+  <div class="log-form">
+    <div class="form-group">
+      <label class="form-label">Overall Energy This Week</label>
+      <div class="slider-wrap">
+        <div class="slider-label-row"><span>Depleted</span><span>Full tank</span></div>
+        <input type="range" id="ci-energy" min="1" max="10" value="7">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Soreness / Fatigue Level</label>
+      <div class="slider-wrap">
+        <div class="slider-label-row"><span>None</span><span>Wrecked</span></div>
+        <input type="range" id="ci-soreness" min="1" max="10" value="4">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Knee Status</label>
+      <select class="form-select" id="ci-knee">
+        <option value="none">No issues</option>
+        <option value="mild">Mild — noticed at end of effort</option>
+        <option value="moderate">Moderate — present during session</option>
+        <option value="bad">Bad — affecting training</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">What was hardest this week?</label>
+      <textarea class="form-input" id="ci-hard" rows="2" placeholder="e.g. Wall ball volume, row pacing, long run..." style="resize:none;min-height:70px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">What felt strong?</label>
+      <textarea class="form-input" id="ci-strong" rows="2" placeholder="e.g. Ski erg timing clicked, sled push felt solid..." style="resize:none;min-height:70px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Any injuries, niggles, or concerns?</label>
+      <textarea class="form-input" id="ci-injuries" rows="2" placeholder="Be honest — your PT needs to know." style="resize:none;min-height:70px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Anything else for your PT?</label>
+      <textarea class="form-input" id="ci-other" rows="2" placeholder="Schedule changes, partner sessions, equipment..." style="resize:none;min-height:70px"></textarea>
+    </div>
+    <button class="submit-btn" onclick="submitCheckin()">Send to PT → Get Next Week's Plan</button>
+  </div>
+
+  <div class="ai-response" id="ai-response">
+    <div class="ai-response-header">
+      <div class="ai-avatar">🏋️</div>
+      <div><div class="ai-name">YOUR PT</div><div class="ai-sub">Powered by Claude</div></div>
+    </div>
+    <div class="ai-text" id="ai-text"></div>
+  </div>
+</div>
+
+</div><!-- /screens -->
+
+<!-- ── BOTTOM NAV ── -->
+<div class="nav">
+  <div class="nav-item active" onclick="showScreen('plan',this)">
+    <div class="nav-icon">📋</div>
+    <div class="nav-label">Plan</div>
+  </div>
+  <div class="nav-item" onclick="showScreen('dash',this)">
+    <div class="nav-icon">📊</div>
+    <div class="nav-label">Dashboard</div>
+  </div>
+  <div class="nav-item" onclick="showScreen('log',this)">
+    <div class="nav-icon">✍️</div>
+    <div class="nav-label">Log</div>
+  </div>
+  <div class="nav-item" onclick="showScreen('pt',this)">
+    <div class="nav-icon">🏋️</div>
+    <div class="nav-label">PT</div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+const RACE_DATE = new Date('2026-07-02');
+const DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
+let completedDays = JSON.parse(localStorage.getItem('completedDays') || '[]');
+let logs = JSON.parse(localStorage.getItem('sessionLogs') || '[]');
+let metrics = JSON.parse(localStorage.getItem('metrics') || '{"wallball":10,"squat":70,"farmers":24,"run":"—","row":"—"}');
+let selectedFeeling = '';
+
+// ── INIT ──
+function init() {
+  updateCountdown();
+  updateProgress();
+  renderLogs();
+  updateMetricsDisplay();
+  restoreCompleted();
+}
+
+function updateCountdown() {
+  const now = new Date();
+  const diff = Math.ceil((RACE_DATE - now) / (1000*60*60*24));
+  document.getElementById('countdownNum').textContent = diff;
+}
+
+function updateProgress() {
+  const total = DAYS.length;
+  const done = completedDays.length;
+  const pct = Math.round((done / total) * 100);
+  const circumference = 150.8;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById('progressRing').style.strokeDashoffset = offset;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('daysLeft').textContent = Math.ceil((RACE_DATE - new Date()) / (1000*60*60*24));
+  document.getElementById('dashWeekPct').innerHTML = pct + '<span class="stat-unit">%</span>';
+  document.getElementById('dashDaysLeft').textContent = done + ' / 7 sessions';
+  const wkBar = document.getElementById('wk6bar');
+  if (wkBar) { wkBar.style.width = pct + '%'; document.getElementById('wk6pct').textContent = pct + '%'; }
+  DAYS.forEach(d => {
+    const tab = document.getElementById('tab-' + d);
+    if (completedDays.includes(d)) tab.classList.add('done');
+    else tab.classList.remove('done');
+    const btn = document.getElementById('complete-' + d);
+    if (btn && completedDays.includes(d)) { btn.textContent = '✓ Session Complete'; btn.classList.add('done'); }
+  });
+}
+
+function restoreCompleted() {
+  const saved = JSON.parse(localStorage.getItem('checkedEx') || '{}');
+  Object.keys(saved).forEach(key => {
+    if (saved[key]) {
+      const els = document.querySelectorAll('.ex');
+      els.forEach(el => { if (el.dataset.key === key) el.classList.add('checked'); });
+    }
+  });
+}
+
+// ── NAVIGATION ──
+function showScreen(id, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+function showDay(id, el) {
+  document.querySelectorAll('.day-view').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('day-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── EXERCISE TICK ──
+let exCounter = 0;
+function toggleEx(el) {
+  if (!el.dataset.key) { el.dataset.key = 'ex_' + (exCounter++); }
+  el.classList.toggle('checked');
+  const saved = JSON.parse(localStorage.getItem('checkedEx') || '{}');
+  saved[el.dataset.key] = el.classList.contains('checked');
+  localStorage.setItem('checkedEx', JSON.stringify(saved));
+}
+
+// ── BLOCK TOGGLE ──
+function toggleBlk(hd) {
+  hd.classList.toggle('collapsed');
+  hd.nextElementSibling.classList.toggle('collapsed');
+}
+
+// ── COMPLETE DAY ──
+function completeDay(day) {
+  if (!completedDays.includes(day)) completedDays.push(day);
+  localStorage.setItem('completedDays', JSON.stringify(completedDays));
+  updateProgress();
+}
+
+// ── LOG ──
+function selectFeeling(el, val) {
+  document.querySelectorAll('.feeling-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('log-feeling').value = val;
+  selectedFeeling = val;
+}
+
+function saveLog() {
+  const entry = {
+    date: new Date().toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short'}),
+    session: document.getElementById('log-session').value,
+    feeling: document.getElementById('log-feeling').value,
+    wb: document.getElementById('log-wb').value,
+    pace: document.getElementById('log-pace').value,
+    squat: document.getElementById('log-squat').value,
+    fc: document.getElementById('log-fc').value,
+    notes: document.getElementById('log-notes').value
+  };
+  logs.unshift(entry);
+  if (logs.length > 20) logs.pop();
+  localStorage.setItem('sessionLogs', JSON.stringify(logs));
+  if (entry.wb) { metrics.wallball = entry.wb; }
+  if (entry.squat) { metrics.squat = entry.squat; }
+  if (entry.fc) { metrics.farmers = entry.fc; }
+  if (entry.pace) { metrics.run = entry.pace; }
+  localStorage.setItem('metrics', JSON.stringify(metrics));
+  updateMetricsDisplay();
+  renderLogs();
+  ['log-wb','log-pace','log-squat','log-fc','log-notes'].forEach(id => { document.getElementById(id).value = ''; });
+  document.querySelectorAll('.feeling-btn').forEach(b => b.classList.remove('selected'));
+  alert('Session logged ✓');
+}
+
+function renderLogs() {
+  const el = document.getElementById('log-history');
+  if (!logs.length) { el.innerHTML = '<div style="color:var(--sub);font-size:12px;text-align:center;padding:16px">No logs yet</div>'; return; }
+  el.innerHTML = logs.slice(0,5).map(l => `
+    <div class="log-entry">
+      <div class="log-entry-date">${l.date} · ${l.session.split('—')[0]} ${l.feeling}</div>
+      <div class="log-entry-metrics">
+        ${l.wb ? `<div class="log-chip">Wall ball <strong>${l.wb} reps</strong></div>` : ''}
+        ${l.pace ? `<div class="log-chip">Pace <strong>${l.pace}/km</strong></div>` : ''}
+        ${l.squat ? `<div class="log-chip">Squat <strong>${l.squat}kg</strong></div>` : ''}
+        ${l.fc ? `<div class="log-chip">FC <strong>${l.fc}kg</strong></div>` : ''}
+        ${l.notes ? `<div class="log-chip" style="width:100%;color:var(--sub)">${l.notes.substring(0,60)}${l.notes.length>60?'...':''}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function updateMetricsDisplay() {
+  document.getElementById('metric-wallball').innerHTML = metrics.wallball + ' <span>reps</span>';
+  document.getElementById('metric-squat').innerHTML = metrics.squat + ' <span>kg</span>';
+  document.getElementById('metric-farmers').innerHTML = metrics.farmers + ' <span>kg</span>';
+  document.getElementById('metric-run').innerHTML = metrics.run + ' <span>min/km</span>';
+  document.getElementById('metric-row').innerHTML = (metrics.row || '—') + ' <span>min</span>';
+}
+
+function openMetricLog(type) {
+  showScreen('log', document.querySelectorAll('.nav-item')[2]);
+}
+
+// ── PT CHECK-IN ──
+async function submitCheckin() {
+  const energy = document.getElementById('ci-energy').value;
+  const soreness = document.getElementById('ci-soreness').value;
+  const knee = document.getElementById('ci-knee').value;
+  const hard = document.getElementById('ci-hard').value;
+  const strong = document.getElementById('ci-strong').value;
+  const injuries = document.getElementById('ci-injuries').value;
+  const other = document.getElementById('ci-other').value;
+
+  const aiBox = document.getElementById('ai-response');
+  const aiText = document.getElementById('ai-text');
+  aiBox.classList.add('visible');
+  aiText.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+  aiBox.scrollIntoView({behavior:'smooth'});
+
+  const systemPrompt = `You are Penny's senior personal trainer and physio-aware coach. You know everything about her training.
+
+ATHLETE PROFILE:
+- Name: Penny
+- Race: Hyrox Mixed Doubles, 2 July 2026, competing at men's weights (~58-60kg)
+- Currently Week 6 of 9-week program
+- Trains mornings, desk job (sits all day)
+
+CURRENT WEEK SCHEDULE (locked):
+- Mon: Full Body Strength (legs focus, no core)
+- Tue: Upper Body Strength + Core
+- Wed: Hyrox Station Strength (DB Thrusters, Leg Press, KB Swings, Bulgarians, Rope Slams, Sandbag Lunges 20kg, Sled Push 152kg, Calf Raises)
+- Thu: Easy Run 8km Zone 2
+- Fri: Hyrox Class (no warm-up — included in class)
+- Sat: Long Run (+1km/week, currently 13.3km)
+- Sun: Hyrox Half Sim with partner
+
+PHYSIO RULES (non-negotiable):
+- Daily physio: Wall Slide Single Arm 3x5/side, Banded Reach & Rotate 3x5/side, Cat-Cow 10 reps, optional trigger ball
+- Root cause of runner's knee = glute weakness
+- Bulgarian Split Squat (physio prescribed) = Mon + Wed only
+- Wall Slide + Banded Reach in warm-up = Tue ONLY
+- Wed warm-up = dead hangs, goblet squats, clamshells, fire hydrants, lateral band walks ONLY
+- Fri = no warm-up (included in class)
+- Couch stretch + balance ball = not daily, only where relevant
+
+WORKING WEIGHTS & TARGETS:
+- Sled push race weight: 152kg
+- Farmer carries: 24kg (do not auto-progress)
+- Wall ball: 5kg, building from 10 to 14+ unbroken
+- Sandbag lunges: 20kg
+- Back squat: 70kg
+- Long run: 13.3km this week, +1km each week
+- Thu easy run: 8km Zone 2 every week (unchanged)
+- Sauna + cold contrast: Fri, Sat, Sun ONLY (3 rounds: 8min sauna / 2-3min cold, end cold)
+
+KEY WEAKNESSES FROM SIM ASSESSMENT:
+- Endurance is the main ceiling (not muscular strength)
+- Ski erg: hips hinging but arms-led, slow timing
+- Row fades at 300m
+- Wall ball stops at 10 reps
+- Grip limiting on farmer carries
+
+TRAINING PRIORITIES:
+1. Aerobic capacity
+2. Ski erg sequencing (hips initiate)
+3. Wall ball volume
+4. Grip endurance
+5. Lat strength
+6. Back management (upper thoracic stiffness increasing with load)
+
+RULES FOR PROGRAMMING:
+- Never add physio exercises to leg day or run day warm-ups
+- Never repeat exercises within the same day
+- Never auto-progress weights without flagging it
+- Goals must be specific and measurable, no fluffy language
+- Warm-ups must be contextually appropriate for that day's session
+- Evening mobility must target that day's specific recovery needs
+- Programming should be adaptive, not static repeated weeks
+
+Your job: Analyse the check-in data and provide:
+1. A brief honest assessment of how the week went based on what they've told you
+2. Key adjustments for next week based on their check-in
+3. Next week's specific focus areas with measurable targets
+4. Any flags or concerns to address
+5. One motivational but direct closing statement (no fluff)
+
+Be direct, specific, and knowledgeable. Talk like a real PT who knows this athlete well.`;
+
+  const userMessage = `Weekly Check-In — Week 6:
+Energy level: ${energy}/10
+Soreness/fatigue: ${soreness}/10
+Knee status: ${knee}
+What was hardest: ${hard || 'Not specified'}
+What felt strong: ${strong || 'Not specified'}
+Injuries/niggles: ${injuries || 'None reported'}
+Other notes: ${other || 'None'}
+Recent logged metrics: Wall ball ${metrics.wallball} reps, Squat ${metrics.squat}kg, Farmer carries ${metrics.farmers}kg, Run pace ${metrics.run}`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.[0]?.text || 'Something went wrong — try again.';
+    aiText.textContent = text;
+  } catch (err) {
+    aiText.textContent = 'Could not reach your PT right now. Check your connection and try again.';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
