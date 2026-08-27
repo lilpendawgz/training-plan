@@ -85,6 +85,10 @@ This is plain markdown, so:
   way
 - `git log --oneline --all -- second-brain/library` gives you a timeline
   of everything you've processed, in order
+- `second-brain/scripts/search.sh "keyword"` searches topics, library, and
+  inbox at once — this is also what Claude runs automatically before
+  acting on requests where your prior thinking matters (see
+  `../CLAUDE.md`)
 
 ## Tagging convention
 
