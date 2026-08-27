@@ -39,7 +39,12 @@ linked there.
 
 **1. Capture (as you consume something)**
 
-Run the script, or copy `templates/quick-capture.md` by hand:
+In a Claude Code session on this repo, just say `/second-brain-add` (or
+"add this to my second brain") and paste a URL, title, or your take — the
+skill figures out the type, fetches metadata if needed, and writes the
+right file. See `.claude/skills/second-brain-add/SKILL.md`.
+
+Or do it by hand — run the script, or copy `templates/quick-capture.md`:
 
 ```
 second-brain/scripts/new-capture.sh "Title of the thing" article https://source-url
