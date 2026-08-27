@@ -9,7 +9,26 @@ Add whatever the user gives you (a URL, a title, a raw thought, or a full
 take) into the `second-brain/` knowledge base in this repo, following the
 workflow in `second-brain/README.md`.
 
-## 1. Figure out capture depth from what's actually given
+## 1. Check for duplicates BEFORE doing anything else
+
+Before fetching any URL, reading the source, or creating any file:
+
+```bash
+second-brain/scripts/search.sh "<url or a distinctive keyword from the title>"
+```
+
+Try both the URL (or its domain/slug) and a couple of words from the
+title if one was given.
+
+- **No match** → continue normally to step 2.
+- **A match is found** → stop. Do not fetch the source, do not read
+  further into it, do not create or edit any file. Tell the user what
+  already exists (file path, its title, whether it's an inbox capture or
+  a full note) and ask how they want to proceed — skip it, update the
+  existing note instead, or add it anyway as a separate entry. Wait for
+  their answer before taking any action.
+
+## 2. Figure out capture depth from what's actually given
 
 Don't ask for information the user hasn't offered unless it's truly
 required.
@@ -24,7 +43,7 @@ required.
 - **A raw thought with no source** → treat as type `other`, no
   `source_url`.
 
-## 2. Determine type
+## 3. Determine type
 
 `article | book | video | podcast | social | other` — infer from the
 domain (youtube.com → video, open.spotify.com/podcast context → podcast,
@@ -32,7 +51,7 @@ x.com/twitter.com/reddit.com → social) or context clues (a book title with
 no URL → book). If genuinely ambiguous, default to `article` for web
 content and `other` otherwise. Don't block on asking.
 
-## 3. Fast path (inbox)
+## 4. Fast path (inbox)
 
 Run:
 
@@ -44,7 +63,7 @@ Then edit the created file in `second-brain/inbox/` to fill in
 `author`/`tags` if known, and the "One-line reaction" / "Why I saved this"
 sections with whatever the user actually said.
 
-## 4. Full-note path (library)
+## 5. Full-note path (library)
 
 Copy the structure of `second-brain/templates/full-note.md` into a new
 file at `second-brain/library/<type>/YYYY-MM-DD-slug.md` (today's date,
@@ -60,7 +79,7 @@ kebab-case slug from the title). Fill in:
   ask them for it directly rather than fabricating one — this field is
   the entire point of the system, not optional filler.
 
-## 5. Link into a topic
+## 6. Link into a topic
 
 Check `second-brain/topics/` for an existing MOC that matches the
 subject.
@@ -69,16 +88,24 @@ subject.
 - If none exists and the subject looks likely to recur, propose creating
   one. Don't create topic pages speculatively for a single one-off note.
 
-## 6. Report back
+## 7. Commit and push
+
+```
+git add second-brain/
+git commit -m "second-brain: capture <short title>"
+git push origin main
+```
+
+Auto-committing captures is expected here — this session's stop hook
+requires a clean working tree anyway, so leaving files staged for later
+review isn't viable. If push fails, tell the user the capture is saved
+locally but not pushed yet, rather than retrying destructively.
+
+## 8. Report back
 
 State the file path created and, for inbox captures, that it still needs
 a take filled in during the next weekly review. Keep this to one or two
 lines.
-
-## 7. Don't auto-commit
-
-Leave committing to the user unless they explicitly ask you to commit
-and/or push.
 
 ## Style rules
 
@@ -87,3 +114,5 @@ and/or push.
 - Keep frontmatter fields consistent with `templates/*.md`.
 - Ask the minimum necessary; prefer capturing something imperfect now
   over interrogating the user before you'll save anything.
+- Never skip the duplicate check, even when the user seems in a hurry —
+  it's cheap (one grep) and prevents silent double-entries.
